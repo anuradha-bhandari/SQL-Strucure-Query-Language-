@@ -1,0 +1,527 @@
+mysql> use clg;
+Database changed
+mysql> show tables;
++---------------+
+| Tables_in_clg |
++---------------+
+| clg           |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> create table employee(id int primary key, name varchar(200) not null,salary int not null ,email varchar(200) not null unique,contact int(10) notnull );
+Query OK, 0 rows affected, 1 warning (0.08 sec)
+-------------------------------------------------------------------------------------------
+
+Q1. Suppose consider we have table name as employee with field id,name,salary,email,contact and we want to fetch name,email and contact using empview means you have to apply empview on employee table for fetch data 
+
+
+mysql> create view empview as select name, email,contact from employee;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> insert into employee values
+    -> (1,"anu",40000,"anu@gmail.com",123456789);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from empview;
++------+---------------+-----------+
+| name | email         | contact   |
++------+---------------+-----------+
+| anu  | anu@gmail.com | 123456789 |
++------+---------------+-----------+
+1 row in set (0.00 sec)
+
+mysql> create table course(cid int primary key,cname varchar(200) not null);
+
+Query OK, 0 rows affected (0.03 sec)
+-------------------------------------------------------------------------------------------
+
+
+Q2. Suppose consider we have two tables name as course with field id,name and student table with field id,name,email,contact,age,cid(foreign key) and you have to create view name as studentByCourse this view can display the course wise student count 
+
+mysql> create table student(sid int primary key,sname varchar(200) not null,semail varchar(200) not null unique,contact int not null,age int not null,cid int ,foreign key(cid) references course(cid) );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> insert into course values(1,"nilu"),(2,"radha"),(3,"rani"),(4,"neha")
+;
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select * from course;
++-----+-------+
+| cid | cname |
++-----+-------+
+|   1 | nilu  |
+|   2 | radha |
+|   3 | rani  |
+|   4 | neha  |
++-----+-------+
+4 rows in set (0.00 sec)
+
+mysql> insert into student values(1,"praji","praji@gmail.com",12345790,18,2)
+;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from student;
++-----+-------+-----------------+----------+-----+------+
+| sid | sname | semail          | contact  | age | cid  |
++-----+-------+-----------------+----------+-----+------+
+|   1 | praji | praji@gmail.com | 12345790 |  18 |    2 |
++-----+-------+-----------------+----------+-----+------+
+1 row in set (0.00 sec)
+
+mysql> insert into student values(2,"pranjal","pranjal@gmail.com",12345765,18,1),(3,"sakshi","sakshe@gmail.com",123457432,28,4),(4,"pranjal","pranji@gma
+il.com",12345875,18,3);
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from student;
++-----+---------+-------------------+-----------+-----+------+
+| sid | sname   | semail            | contact   | age | cid  |
++-----+---------+-------------------+-----------+-----+------+
+|   1 | praji   | praji@gmail.com   |  12345790 |  18 |    2 |
+|   2 | pranjal | pranjal@gmail.com |  12345765 |  18 |    1 |
+|   3 | sakshi  | sakshe@gmail.com  | 123457432 |  28 |    4 |
+|   4 | pranjal | pranji@gmail.com  |  12345875 |  18 |    3 |
++-----+---------+-------------------+-----------+-----+------+
+4 rows in set (0.00 sec)
+
+mysql> select c.cname as "Course name", count(s.sid) as "Student count" from
+ course c inner join student s on c.cid=s.cid group by c.cname;
++-------------+---------------+
+| Course name | Student count |
++-------------+---------------+
+| nilu        |             1 |
+| radha       |             1 |
+| rani        |             1 |
+| neha        |             1 |
++-------------+---------------+
+4 rows in set (0.01 sec)
+
+
+mysql> create view studentByCourse as select  c.cname as "Course name", coun
+t(s.sid) as "Student count" from course c inner join student s on c.cid=s.cid group by c.cname;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from studentByCourse;
++-------------+---------------+
+| Course name | Student count |
++-------------+---------------+
+| nilu        |             1 |
+| radha       |             1 |
+| rani        |             1 |
+| neha        |             1 |
++-------------+---------------+
+4 rows in set (0.01 sec)
+
+-------------------------------------------------------------------------------------------
+
+
+Q3. Create view which show the similar age students 
+
+mysql> select sname ,age from student order by age;
++---------+-----+
+| sname   | age |
++---------+-----+
+| praji   |  18 |
+| pranjal |  18 |
+| pranjal |  18 |
+| sakshi  |  28 |
++---------+-----+
+4 rows in set (0.00 sec)
+
+mysql> select age,count(age) from student group by age having count(age)>1;
++-----+------------+
+| age | count(age) |
++-----+------------+
+|  18 |          3 |
++-----+------------+
+1 row in set (0.00 sec)
+
+mysql> select sname,age from student where age in(select age from student gr
+oup by age having count(age)>1);
++---------+-----+
+| sname   | age |
++---------+-----+
+| praji   |  18 |
+| pranjal |  18 |
+| pranjal |  18 |
++---------+-----+
+3 rows in set (0.01 sec)
+
+mysql> select sname,age from student where age in(select count(age) from stu
+dent group by age having count(age)>1);
+Empty set (0.00 sec)
+
+mysql> update student set age=28 where sname='praji';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select sname,age from student where age in(select age from student gr
+oup by age having count(age)>1);
++---------+-----+
+| sname   | age |
++---------+-----+
+| praji   |  28 |
+| pranjal |  18 |
+| sakshi  |  28 |
+| pranjal |  18 |
++---------+-----+
+4 rows in set (0.00 sec)
+
+mysql> select sname,age from student where age in(select age from student group by age having count(age)>1) order by age;
++---------+-----+
+| sname   | age |
++---------+-----+
+| pranjal |  18 |
+| pranjal |  18 |
+| praji   |  28 |
+| sakshi  |  28 |
++---------+-----+
+4 rows in set (0.00 sec)
+
+mysql> create view stud as select sname,age from student where age in(select age from student group by age having count(age)>1) order by age;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select * from stud;
++---------+-----+
+| sname   | age |
++---------+-----+
+| pranjal |  18 |
+| pranjal |  18 |
+| praji   |  28 |
+| sakshi  |  28 |
++---------+-----+
+4 rows in set (0.01 sec)
+-------------------------------------------------------------------------------------------
+
+
+Q4. Create a view showing the students details whose name is same?
+
+
+mysql> select * from student where sname in(select sname from student groupby sname having count(sname)>1);
++-----+---------+-------------------+----------+-----+------+
+| sid | sname   | semail            | contact  | age | cid  |
++-----+---------+-------------------+----------+-----+------+
+|   2 | pranjal | pranjal@gmail.com | 12345765 |  18 |    1 |
+|   4 | pranjal | pranji@gmail.com  | 12345875 |  18 |    3 |
++-----+---------+-------------------+----------+-----+------+
+2 rows in set (0.01 sec)
+
+mysql> create view studeview as  select * from student where sname in(select
+ sname from student group by sname having count(sname)>1);
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select * from studeview ;
++-----+---------+-------------------+----------+-----+------+
+| sid | sname   | semail            | contact  | age | cid  |
++-----+---------+-------------------+----------+-----+------+
+|   2 | pranjal | pranjal@gmail.com | 12345765 |  18 |    1 |
+|   4 | pranjal | pranji@gmail.com  | 12345875 |  18 |    3 |
++-----+---------+-------------------+----------+-----+------+
+2 rows in set (0.00 sec)
+
+mysql>
+
+
+---------------------------------------------------------------------------------------------
+
+Q5. Create procedure and store employee data in table using procedure?
+
+ select * from course;
++-----+-------+
+| cid | cname |
++-----+-------+
+|   1 | nilu  |
+|   2 | radha |
+|   3 | rani  |
+|   4 | neha  |
++-----+-------+
+4 rows in set (0.00 sec)
+
+mysql> create procedure pro(cid int(5), cname varchar(200))
+    -> begin
+    -> insert into course values(cid,cname);
+    -> end
+    -> &&
+Query OK, 0 rows affected, 1 warning (0.04 sec)
+
+mysql> call pro (5,"sneha");
+    -> &&
+Query OK, 1 row affected (0.03 sec)
+
+mysql> delimiter ;
+mysql> select * from course;
++-----+-------+
+| cid | cname |
++-----+-------+
+|   1 | nilu  |
+|   2 | radha |
+|   3 | rani  |
+|   4 | neha  |
+|   5 | sneha |
++-----+-------+
+5 rows in set (0.00 sec)
+-----------------------------------------------------------------------------------------
+
+
+
+
+mysql> select * from course;
++-----+-------+
+| cid | cname |
++-----+-------+
+|   1 | nilu  |
+|   2 | radha |
+|   3 | rani  |
+|   4 | neha  |
++-----+-------+
+4 rows in set (0.00 sec)
+
+mysql> delimiter &&
+mysql> create procedure pro(cid int(5), cname varchar(200))
+    -> begin
+    -> insert into course values(cid,cname);
+    -> end
+    -> &&
+Query OK, 0 rows affected, 1 warning (0.04 sec)
+
+mysql> call pro (5,"sneha");
+    -> &&
+Query OK, 1 row affected (0.03 sec)
+
+mysql> delimiter ;
+mysql> select * from course;
++-----+-------+
+| cid | cname |
++-----+-------+
+|   1 | nilu  |
+|   2 | radha |
+|   3 | rani  |
+|   4 | neha  |
+|   5 | sneha |
++-----+-------+
+5 rows in set (0.00 sec)
+
+mysql> select * from student;
++-----+---------+-------------------+-----------+-----+------+
+| sid | sname   | semail            | contact   | age | cid  |
++-----+---------+-------------------+-----------+-----+------+
+|   1 | praji   | praji@gmail.com   |  12345790 |  28 |    2 |
+|   2 | pranjal | pranjal@gmail.com |  12345765 |  18 |    1 |
+|   3 | sakshi  | sakshe@gmail.com  | 123457432 |  28 |    4 |
+|   4 | pranjal | pranji@gmail.com  |  12345875 |  18 |    3 |
++-----+---------+-------------------+-----------+-----+------+
+4 rows in set (0.00 sec)
+
+ 
+
+Q6. Create procure to pass employee id to procedure and get name and salary of employee by using its id.
+
+
+mysql> delimiter &&
+mysql> create procedure proc(id int, out name varchar(200))
+    -> begin
+    -> select cname into name from course where cid=id;
+    -> end
+    -> &&
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> call proc(1,@crname)&&
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select @crname &&
++---------+
+| @crname |
++---------+
+| nilu    |
++---------+
+1 row in set (0.00 sec)
+
+mysql> select @crname as "name "&&
++-------+
+| name  |
++-------+
+| nilu  |
++-------+
+1 row in set (0.00 sec)
+
+
+
+-----
+mysql>  create procedure procdr(id int, out name varchar(200),out sage int)
+    -> begin
+    -> select sname ,age into name,sage from student where sid=id;
+    -> end
+    -> $$
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> call procdr(1,@nn,@sd) $$
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select @nn as "Name",@sd as "age" $$
++-------+------+
+| Name  | age  |
++-------+------+
+| praji |   28 |
++-------+------+
+1 row in set (0.01 sec)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+1.Create a procedure that adds a new employee to the Employee table.
+
+> delimiter //
+
+mysql>  create procedure pro13(eid int,ename varchar(100),esal int,eemail varchar(100),econt int)
+    ->          begin
+    ->          insert into employee values(eid,ename,esal,eemail,econt);
+    ->          end
+    ->           //
+call pro13(2,'sneha',30000,'sneha@gmail.com',23456789)//
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from employee//
++----+-------+--------+-----------------+-----------+
+| id | name  | salary | email           | contact   |
++----+-------+--------+-----------------+-----------+
+|  1 | anu   |  40000 | anu@gmail.com   | 123456789 |
+|  2 | sneha |  30000 | sneha@gmail.com |  23456789 |
++----+-------+--------+-----------------+-----------+
+2 rows in set (0.00 sec)
+---------------------------------------------------------------------
+2.Write a stored procedure to update the salary of an employee.
+
+delimiter //
+create procedure updatesalary(eid int, esal int)
+begin
+update employee set salary=esal where id=eid;
+end
+//
+
+-> call updatesalary(1,200)//
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select *  from employee//
++----+-------+--------+-----------------+-----------+
+| id | name  | salary | email           | contact   |
++----+-------+--------+-----------------+-----------+
+|  1 | anu   |    200 | anu@gmail.com   | 123456789 |
+|  2 | sneha |  30000 | sneha@gmail.com |  23456789 |
++----+-------+--------+-----------------+-----------+
+-------------------------------------------------------------------------------
+3.Create a procedure that retrieves all orders for a given customer.
+
+delimiter //
+create procedure retrive_orders(oid int,out pamt varchar(100),o_date varchar(100))
+begin
+select ord_no,pur_amt,ord_date from orders where ord_no=oid;
+end
+//
+
+call retrive_orders(1,@aa,@bb) //
++--------+---------+------------+
+| ord_no | pur_amt | ord_date   |
++--------+---------+------------+
+|      1 |     150 | 2020-10-05 |
++--------+---------+------------+
+-------------------------------------------------------------------------------------------4.Write a stored procedure that deletes all inactive customers.
+
+delimiter //
+create procedure delete_inactive_cust()
+begin
+delete from custmer where NOT cid IN (select cid from orders);
+end
+//
+call delete_inactive_cust() //
+Query OK, 2 rows affected (0.02 sec)
+
+mysql> select * from custmer //
++-----+---------+--------+-------+------+
+| cid | name    | city   | grade | sid  |
++-----+---------+--------+-------+------+
+|   1 | Madhuri | Mumbai |   200 |    1 |
+|   2 | Radha   | pune   |   100 |    1 |
+|   3 | Sneha   | Pune   |   300 |    3 |
+|   4 | Praji   | Nashik |   400 |    4 |
+|   5 | Sakshi  | Satara |   100 |    3 |
++-----+---------+--------+-------+------+
+------------------------------------------------------------------------------------
+5.Write a stored procedure that calculates the total sales for a given year.
+
+select count(ord_no),year(ord_date) from orders group by year(ord_date) //
+
+delimiter //
+create procedure totalsales()
+begin
+select count(ord_no),year(ord_date) from orders group by year(ord_date);
+end
+//
+
+OR---------
+
+delimiter //
+create procedure totalsales1(ord_yr int)
+begin
+select count(ord_no),year(ord_date) from orders where year(ord_date)=ord_yr group by year(ord_date);
+end
+//
+
+ call totalsales1(2020) //
++---------------+----------------+
+| count(ord_no) | year(ord_date) |
++---------------+----------------+
+|             6 |           2020 |
++---------------+----------------+
+1 row in set (0.01 sec)
+
+--------------------------------------------------------------------------------------
+
+6.Create a procedure that lists all orders placed in the last month.
+
+ select * from orders where month(ord_date)=( select month(ord_date) from orders group by month(ord_date) order by month(ord_date) desc limit 1); +--------+---------+------------+------+------+
+| ord_no | pur_amt | ord_date   | cid  | sid  |
++--------+---------+------------+------+------+
+|      1 |     150 | 2020-10-05 |    5 |    2 |
++--------+---------+------------+------+------+
+--------------------------------------------------------------
+7.Create a procedure to retrieve all products within a given price range.
+
+delimiter //
+create procedure retriveprodrange( r1 int, r2 int)
+begin
+select ord_no,pur_amt,ord_date from orders where pur_amt between r1 and r2;
+end
+//
+
+call retriveprodrange(300,500) //
++--------+---------+------------+
+| ord_no | pur_amt | ord_date   |
++--------+---------+------------+
+|      2 |     300 | 2020-09-14 |
+|      5 |     400 | 2020-02-12 |
+|      6 |     500 | 2020-08-11 |
++--------+---------+------------+
+-------------------------------------------------------------------
+SQL FUNCTION
+------------
+
+1.Create a function that returns the full name of an employee given their first and last names.
+delimiter //
+create function func(first varchar(100),lastname varchar(100)) returns varchar(100)    deterministics
+begin 
+declare fullname varchar(100);
+set fullname=concat(first,'',lastname);
+return fullname;
+end
+//
+
+ 
+
+
+
+
+
+

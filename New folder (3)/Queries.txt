@@ -1,0 +1,310 @@
+create table courses(c_id int primary key,c_name varchar(100),duration int,fees int);
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> desc courses;
++----------+--------------+------+-----+---------+-------+
+| Field    | Type         | Null | Key | Default | Extra |
++----------+--------------+------+-----+---------+-------+
+| c_id     | int          | NO   | PRI | NULL    |       |
+| c_name   | varchar(100) | YES  |     | NULL    |       |
+| duration | int          | YES  |     | NULL    |       |
+| fees     | int          | YES  |     | NULL    |       |
++----------+--------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> insert into courses values
+         (1,"Java",10,40000),
+          (2,"Python",8,30000),
+          (3,"MERN",9,98000),
+          (4,".NET",12,88000),
+          (5,"WebDevelopment",7,80000),
+          (6,"WebDevelopment",5,16000),
+          (7,"Java",9,16000);
+Query OK, 7 rows affected (0.02 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+---------------------------------------------------------------------
+create table students(s_id int primary key,name varchar(100),Email varchar(100) unique key,phone varchar(10),c_id int,foreign key(c_id) reference
+s courses(c_id) on delete set null on update cascade);
+Query OK, 0 rows affected (0.05 sec)
+
+Query OK, 1 row affected (0.01 sec)
+---------------------------------------------------------------------------------
+
+ create table enrollments(En_id int primary key,s_id int,foreign key(s_id)references students(s_id) on delete set null on update cascade,c_id int, foreign key(c_id)references courses(c_id) on delete set null on update cascade,En_date date);
+
+
+create table exams(e_id int primary key,s_id int, foreign key(s_id)references students(s_id) on delete set null on update cascade,subject varchar(100),marks int);
+------------------------------------------------------------------------------------------
+
+mysql> select * from  courses;
++------+----------------+----------+-------+
+| c_id | c_name         | duration | fees  |
++------+----------------+----------+-------+
+|    1 | Java           |       10 | 40000 |
+|    2 | Python         |        8 | 30000 |
+|    3 | MERN           |        9 | 98000 |
+|    4 | .NET           |       12 | 88000 |
+|    5 | WebDevelopment |        7 | 80000 |
+|    6 | WebDevelopment |        5 | 16000 |
+|    7 | Java           |        9 | 16000 |
++------+----------------+----------+-------+
+7 rows in set (0.01 sec)
+
+mysql> select * from students;
++------+--------+-----------------+------------+------+
+| s_id | name   | Email           | phone      | c_id |
++------+--------+-----------------+------------+------+
+|    1 | Anu    | anu@gmail.com   | 9087654321 |    3 |
+|    2 | sneha  | sneha@gmail.com | 9845637219 |    7 |
+|    3 | sakshi | sgamil.com      | 123345667  |    3 |
+|    4 | sneha  | snehagamil.com  | 123344758  |    1 |
+|    5 | sejal  | sejalgamil.com  | 134344758  |    2 |
+|    6 | nilo   | nilogmail.com   | 904344758  |    1 |
+|    7 | rani   | ranigmail.com   | 904348958  |    6 |
++------+--------+-----------------+------------+------+
+7 rows in set (0.00 sec)
+
+mysql> select * from enrollments;
++-------+------+------+------------+
+| En_id | s_id | c_id | En_date    |
++-------+------+------+------------+
+|     1 |    2 |    4 | 2024-10-10 |
+|     2 |    1 |    3 | 2025-12-10 |
+|     3 |    1 |    2 | 2026-09-11 |
+|     4 |    4 |    1 | 2022-11-09 |
+|     5 |    7 |    6 | 2021-05-19 |
+|     6 |    3 |    2 | 2020-10-16 |
++-------+------+------+------------+
+6 rows in set (0.00 sec)
+
+mysql> select * from exams;
++------+------+-----------+-------+
+| e_id | s_id | subject   | marks |
++------+------+-----------+-------+
+|    1 |    2 | English   |    80 |
+|    2 |    3 | Math      |    90 |
+|    3 |    3 | hindi     |    80 |
+|    4 |    2 | geology   |    70 |
+|    5 |    5 | geography |    60 |
+|    6 |    4 | history   |    60 |
++------+------+-----------+-------+
+6 rows in set (0.00 sec)
+
+mysql>
+-----------------------------------------------------------------------------------------------
+5.desc students;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| s_id  | int          | NO   | PRI | NULL    |       |
+| name  | varchar(100) | YES  |     | NULL    |       |
+| Email | varchar(100) | YES  | UNI | NULL    |       |
+| phone | varchar(10)  | YES  |     | NULL    |       |
+| c_id  | int          | YES  | MUL | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+------------------------------------------------------------------------------------
+
+1.select s.name as "student name",c.c_name as "course name" from students s inner join courses c on s.c_id=c.c_id;
++--------------+----------------+
+| student name | course name    |
++--------------+----------------+
+| Anu          | MERN           |
+| sneha        | Java           |
+| sakshi       | MERN           |
+| sneha        | Java           |
+| sejal        | Python         |
+| nilo         | Java           |
+| rani         | WebDevelopment |
++--------------+----------------+
+7 rows in set (0.00 sec)
+-------------------------------------------------------------------------------------------
+
+2.select s.name as "student name",c.c_name as "course name" from studen
+ts s left join courses c on s.c_id=c.c_id where c.c_id is null;
+
++---------------+-------------+
+|student name   | course name |
++---------------+-------------+
+| rani          |   NULL      |
++---------------+-------------+
+--------------------------------------------------------------------------------
+3.mysql> select s.name,e.marks from students s left join exams e on s.s_id=e.s
+_id;
++--------+-------+
+| name   | marks |
++--------+-------+
+| Anu    |  NULL |
+| sneha  |    80 |
+| sneha  |    70 |
+| sakshi |    90 |
+| sakshi |    80 |
+| sneha  |    60 |
+| sejal  |    60 |
+| nilo   |  NULL |
+| rani   |  NULL |
++--------+-------+
+----------------------------------------------------------------------------------------
+
+4.mysql> select c.c_name as "courses",count(s.s_id) as "no of enroll" from courses c left join students s on s.c_id=c.c_id group by c.c_name;
++----------------+--------------+
+| courses        | no of enroll |
++----------------+--------------+
+| Java           |            3 |
+| Python         |            1 |
+| MERN           |            2 |
+| .NET           |            0 |
+| WebDevelopment |            1 |
++----------------+--------------+
+5 rows in set (0.01 sec)
+
+---------------------------------------------------------------------------------------
+
+5.
+mysql> select s.name as "students",e.marks as "marks" from students s inner
+join exams e on s.s_id=e.s_id where e.marks>75;
++----------+-------+
+| students | marks |
++----------+-------+
+| sneha    |    80 |
+| sakshi   |    90 |
+| sakshi   |    80 |
++----------+-------+
+3 rows in set (0.00 sec)
+-----------------------------------------------------------------------------------------
+6.
+mysql> select s.name as "student name",c.c_name as "course name" from students s left join courses c on s.c_id=c.c_id;
++--------------+----------------+
+| student name | course name    |
++--------------+----------------+
+| Anu          | MERN           |
+| sneha        | Java           |
+| sakshi       | MERN           |
+| sneha        | Java           |
+| sejal        | Python         |
+| nilo         | Java           |
+| rani         | WebDevelopment |
++--------------+----------------+
+-------------------------------------------------------------------------------------------
+
+7. select s.name as "student name",c.c_name as "course name" from students s right join courses c on s.c_id=c.c_id;
++--------------+----------------+
+| student name | course name    |
++--------------+----------------+
+| sneha        | Java           |
+| nilo         | Java           |
+| sejal        | Python         |
+| Anu          | MERN           |
+| sakshi       | MERN           |
+| NULL         | .NET           |
+| NULL         | WebDevelopment |
+| rani         | WebDevelopment |
+| sneha        | Java           |
++--------------+----------------+
+-------------------------------------------------------------------------------------------
+
+8.mysql> select s.name as "student name",count(e.s_id) from students s left join enrollments e on s.s_id=e.s_id group by s.name having count(e.s_id)>1;
++--------------+---------------+
+| student name | count(e.s_id) |
++--------------+---------------+
+| Anu          |             2 |
+| sneha        |             2 |
++--------------+---------------+
+------------------------------------------------------------------------------------------
+9. select ex.s_id from enrollments e right join exams ex on ex.s_i
+d=e.s_id where e.s_id is null;
++------+
+| s_id |
++------+
+|    5 |
++------+
+---------------------------------------------------------------------------------------
+10.mysql> select s.name,max(e.marks) from exams e inner join students s on s.s_id=e.s_id group by s.name;
++--------+--------------+
+| name   | max(e.marks) |
++--------+--------------+
+| sneha  |           80 |
+| sakshi |           90 |
+| sejal  |           60 |
++--------+--------------+
+3 rows in set (0.00 sec)
+-------------------------------------------------------------------------------------------
+
+11. create view studview as select s.s_id as "id",s.name as "Name",c.c_name as "course name",e.en_date as "en Date" from courses c inner join students s on c.c_id=s.c_id inner join enrollments e on s.s_id=e.s_id;
+
+select * from studview;
+
++----+--------+----------------+------------+
+| id | Name   | course name    | en Date    |
++----+--------+----------------+------------+
+|  1 | Anu    | MERN           | 2025-12-10 |
+|  1 | Anu    | MERN           | 2026-09-11 |
+|  2 | sneha  | Java           | 2024-10-10 |
+|  3 | sakshi | MERN           | 2020-10-16 |
+|  4 | sneha  | Java           | 2022-11-09 |
+|  7 | rani   | WebDevelopment | 2021-05-19 |
++----+--------+----------------+------------+
+6 rows in set (0.00 sec)
+-------------------------------------------------------------------------------------------
+
+14.create view enrollview as select c.c_name as "courses",count(s.s_id) as "no of enroll" from courses c left join students s on s.c_id=c.c_id group by c.c_name;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select * from enrollview;
++----------------+--------------+
+| courses        | no of enroll |
++----------------+--------------+
+| Java           |            3 |
+| Python         |            1 |
+| MERN           |            2 |
+| .NET           |            0 |
+| WebDevelopment |            1 |
++----------------+--------------+
+5 rows in set (0.01 sec)
+-------------------------------------------------------------------------------------------
+15.mysql> create view highestview as select s.name,max(e.marks) from exams e inner join students s on s.s_id=e.s_id group by s.name limit 3;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from highestview;
++--------+--------------+
+| name   | max(e.marks) |
++--------+--------------+
+| sneha  |           80 |
+| sakshi |           90 |
+| sejal  |           60 |
++--------+--------------+
+3 rows in set (0.00 sec)
+-------------------------------------------------------------------------------------------
+17.
+     delimiter //
+mysql>      create function studname(id int) returns varchar(100) deterministic
+    ->      begin
+    ->      declare sname varchar(100);
+    ->      select name into sname from students where s_id=id;
+    ->      return sname;
+    ->      end
+    ->      //
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select studname(1) //
++-------------+
+| studname(1) |
++-------------+
+| Anu         |
++-------------+
+1 row in set (0.01 sec)
+----------------------------------------------------------------------------
+24.mysql> select s.name,max(e.marks) from exams e inner join students s on s.s_id=e.s_id group by s.name;
++--------+--------------+
+| name   | max(e.marks) |
++--------+--------------+
+| sneha  |           80 |
+| sakshi |           90 |
+| sejal  |           60 |
++--------+--------------+
+-----------------------------------------------------------------------------------------
+
+
+
+
+   

@@ -1,0 +1,173 @@
+mysql> create database subquery;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> use subquery;
+Database changed
+mysql> create table Dept(deptid int primary key,deptname varchar(200) not null,deptblock int not null unique);
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> insert into Dept values(1,"DEV",101),
+    -> (2,"PROD",102),(3,"TESTING",103);
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from Dept;
++--------+----------+-----------+
+| deptid | deptname | deptblock |
++--------+----------+-----------+
+|      1 | DEV      |       101 |
+|      2 | PROD     |       102 |
+|      3 | TESTING  |       103 |
++--------+----------+-----------+
+3 rows in set (0.00 sec)
+
+
+
+mysql> create table Project(pid int primary key,project name varchar(200) not null,location varchar(200) not null);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'name varchar(200) not null,location varchar(200) not null)' at line 1
+mysql> create table Project(pid int primary key,project_name varchar(200) not null,location varchar(200) not null);
+Query OK, 0 rows affected (0.03 sec)
+
+
+mysql> insert into project values(1,"LMS","Mumbai"),
+    -> (2,"GMS","DELHI"),(3,"HMS","PUNE");
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+
+mysql> select * from project;
++-----+--------------+----------+
+| pid | project_name | location |
++-----+--------------+----------+
+|   1 | LMS          | Mumbai   |
+|   2 | GMS          | DELHI    |
+|   3 | HMS          | PUNE     |
++-----+--------------+----------+
+3 rows in set (0.00 sec)
+
+
+
+mysql> create table employee(empid int primary key,name varchar(200),email varchar(200) not null unique,contact varchar(200) not null unique,salary varc
+har(200) not null,deptid int,foreign key(deptid) references dept(deptid),pid int ,foreign key(pid) references project(pid));
+Query OK, 0 rows affected (0.06 sec)
+
+
+mysql> insert into employee values(1,"ram","ram@gmail.com","1234567156",10000,1,1)
+    -> ,(2,"shyam","shyam@gmail.com","3333333333",11000,1,1),
+    -> (3,"ganesh","ganesh@gmail.com","2222222222",12000,1,1),
+    -> (4,"dinesh","dinesh@gmail.com","4444444444",10000,1,1),
+    -> (5,"himesh","himesh@gmail.com","4444443445",10000,1,2),
+    -> (6,"rajesh","rajesh@gmail.com","333343445",10000,2,null),
+    -> (7,"sandesh","sandesh@gmail.com","2222243445",10000,3,null);
+Query OK, 7 rows affected (0.01 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> select *  from employee;
++-------+---------+-------------------+------------+--------+--------+------+
+| empid | name    | email             | contact    | salary | deptid | pid|
++-------+---------+-------------------+------------+--------+--------+------+
+|     1 | ram     | ram@gmail.com     | 1234567156 | 10000  |      1 |    1|
+|     2 | shyam   | shyam@gmail.com   | 3333333333 | 11000  |      1 |    1|
+|     3 | ganesh  | ganesh@gmail.com  | 2222222222 | 12000  |      1 |    1|
+|     4 | dinesh  | dinesh@gmail.com  | 4444444444 | 10000  |      1 |    1|
+|     5 | himesh  | himesh@gmail.com  | 4444443445 | 10000  |      1 |    2|
+|     6 | rajesh  | rajesh@gmail.com  | 333343445  | 10000  |      2 | NULL|
+|     7 | sandesh | sandesh@gmail.com | 2222243445 | 10000  |      3 | NULL|
++-------+---------+-------------------+------------+--------+--------+------+
+7 rows in set (0.00 sec)
+----------------------------------------+---------------------------------------+-------------------------------------------
+
+Q1. WA SQL Query to find the employee who is not working on a project using subquery?
+
+mysql> select * from employee where empid not in(select empid from employee
+where pid is not null);
++-------+---------+-------------------+------------+--------+--------+------+
+| empid | name    | email             | contact    | salary | deptid | pid  |
++-------+---------+-------------------+------------+--------+--------+------+
+|     6 | rajesh  | rajesh@gmail.com  | 333343445  | 10000  |      2 | NULL |
+|     7 | sandesh | sandesh@gmail.com | 2222243445 | 10000  |      3 | NULL |
++-------+---------+-------------------+------------+--------+--------+------+
+-------------------+---------------------------------+_----------------------------------------+_---------------------++--------------
+
+Q2. WA SQL Query to delete the employee who belongs from the same dept?
+
+select * from employee where deptid in(select deptid from employee group by deptid having count(deptid)>1);
++-------+--------+------------------+------------+--------+--------+------+
+| empid | name   | email            | contact    | salary | deptid | pid  |
++-------+--------+------------------+------------+--------+--------+------+
+|     1 | ram    | ram@gmail.com    | 1234567156 | 10000  |      1 |    1 |
+|     2 | shyam  | shyam@gmail.com  | 3333333333 | 11000  |      1 |    1 |
+|     3 | ganesh | ganesh@gmail.com | 2222222222 | 12000  |      1 |    1 |
+|     4 | dinesh | dinesh@gmail.com | 4444444444 | 10000  |      1 |    1 |
+|     5 | himesh | himesh@gmail.com | 4444443445 | 10000  |      1 |    2 |
++-------+--------+------------------+------------+--------+--------+------+
+5 rows in set (0.01 sec)
+-------------------------+-------------------------------+------------------------------------+------------------------------------
+
+
+Q3. update the employee pid column with project name LMS and whose employee id is 5 
+
+
+mysql> update employee set pid=(select pid from project where project_name="LMS") where empid=7;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from employee;
++-------+---------+-------------------+------------+--------+--------+------+
+| empid | name    | email             | contact    | salary | deptid | pid  |
++-------+---------+-------------------+------------+--------+--------+------+
+|     1 | ram     | ram@gmail.com     | 1234567156 | 10000  |      1 |    1 |
+|     2 | shyam   | shyam@gmail.com   | 3333333333 | 11000  |      1 |    1 |
+|     3 | ganesh  | ganesh@gmail.com  | 2222222222 | 12000  |      1 |    1 |
+|     4 | dinesh  | dinesh@gmail.com  | 4444444444 | 10000  |      1 |    1 |
+|     5 | himesh  | himesh@gmail.com  | 4444443445 | 10000  |      1 |    1 |
+|     6 | rajesh  | rajesh@gmail.com  | 333343445  | 10000  |      2 |    1 |
+|     7 | sandesh | sandesh@gmail.com | 2222243445 | 10000  |      3 |    1 |
++-------+---------+-------------------+------------+--------+--------+------+
+-----------------------+-------------------------------+-------------------------------------+-------------------------------------
+
+Q4. Find the employee whose pid is 1 and salary is greater than ram whose employee id 1 
+
+
+mysql> select * from employee where pid=1 and salary>(select salary from employee where name="ram") ;
++-------+--------+------------------+------------+--------+--------+------+
+| empid | name   | email            | contact    | salary | deptid | pid  |
++-------+--------+------------------+------------+--------+--------+------+
+|     2 | shyam  | shyam@gmail.com  | 3333333333 | 11000  |      1 |    1 |
+|     3 | ganesh | ganesh@gmail.com | 2222222222 | 12000  |      1 |    1 |
++-------+--------+------------------+------------+--------+--------+------+
+2 rows in set (0.00 sec)
+
+-----------------+-----------------------------------------------+----------------------------------+----------------------------+----
+
+Q5. WA SQL query to display the project belong from same city 
+
+
+mysql> update project set location="PUNE" where pid=1;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from project where location in (select location from project group by location having count(location)>1);
++-----+--------------+----------+
+| pid | project_name | location |
++-----+--------------+----------+
+|   1 | LMS          | PUNE     |
+|   3 | HMS          | PUNE     |
++-----+--------------+----------+
+2 rows in set (0.00 sec)
+
+--------------------------------------+------------------------------------------+---------------------------------+------------------
+
+
+Q6. WA SQL query to display the project in which more than one employee from the same dept?
+
+mysql> select pid,Project_name from project where pid in(select deptid from
+employee group by deptid having count(deptid)>1);
++-----+--------------+
+| pid | Project_name |
++-----+--------------+
+|   1 | LMS          |
++-----+--------------+
+1 row in set (0.00 sec)
+-------------+---------------------------------------------+----------------------------------+-----------------------------+---------
+

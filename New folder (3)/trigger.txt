@@ -1,0 +1,121 @@
+mysql> create database triggers;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> use triggers;
+Database changed
+
+ create table admission(sid int primary key,name varchar(200) not null
+,contact int(10),branch varchar(200),status int default 0);
+Query OK, 0 rows affected, 1 warning (0.06 sec)
+
+
+mysql> create table alumni(aid int primary key auto_increment,sid int, foreign key(sid)references admission(sid) on update cascade on delete set null,branch varchar(200),company varchar(200),pyear year);
+Query OK, 0 rows affected (0.05 sec)
+
+
+  
+  mysql> insert into admission (sid,name,contact,branch) values(1,"Anu",9890830868,"CSE" ),(2,"Nilo",7709634386,"Mech"),(3,"Sakshi",123456678,"ENTC");
+ERROR 1264 (22003): Out of range value for column 'contact' at row 1
+mysql> insert into admission (sid,name,contact,branch) values(1,"Anu",989083086,"CSE" ),(2,"Nilo",770963438,"Mech"),(3,"Sakshi",12345667,"ENTC");
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from admission;
++-----+--------+-----------+--------+--------+
+| sid | name   | contact   | branch | status |
++-----+--------+-----------+--------+--------+
+|   1 | Anu    | 989083086 | CSE    |      0 |
+|   2 | Nilo   | 770963438 | Mech   |      0 |
+|   3 | Sakshi |  12345667 | ENTC   |      0 |
++-----+--------+-----------+--------+--------+
+3 rows in set (0.01 sec)
+
+mysql> delimiter /
+mysql> create trigger degree after update on admission
+    -> for each row
+    -> begin
+    -> insert into alumni values('0',old.sid,old.branch,"TCS",year(now()));
+    -> end
+    -> /
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> update admission set status=1 where sid=1;
+    -> /
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from alumni;
+    -> /
++-----+------+--------+---------+-------+
+| aid | sid  | branch | company | pyear |
++-----+------+--------+---------+-------+
+|   1 |    1 | CSE    | TCS     |  2024 |
++-----+------+--------+---------+-------+
+1 row in set (0.00 sec)
+
+mysql> select * from admission;
+    -> /
++-----+--------+-----------+--------+--------+
+| sid | name   | contact   | branch | status |
++-----+--------+-----------+--------+--------+
+|   1 | Anu    | 989083086 | CSE    |      1 |
+|   2 | Nilo   | 770963438 | Mech   |      0 |
+|   3 | Sakshi |  12345667 | ENTC   |      0 |
++-----+--------+-----------+--------+--------+
+3 rows in set (0.00 sec)
+
+-----------------+--------------------------------------+----------------------+-----------------------+-----------------
+
+Q2. Suppose consider we are working on Mall database and we have scenario if product expiry date update by customer then product should shift in saleoffer 
+Product table contain: pid, name,price,mdate,exdate,company 
+Saleoffer: offerid,pid,name,price,mdate,exdate,discount (20%)
+
+
+>>>> create table product(pid int primary key,name varchar(200) not null,price int not null,mdate date,exdate date,company varchar(200) not null);
+  
+
+
+>>>> create table saleoffer(offerid int primary key auto_increment,pid int, foreign key(pid) references product(pid) on update cascade on delete set null,name varchar(200) not null,price int not null,mdate date,exdate date,discount int);
+
+
+mysql> insert into product values(1,"Milk",40,"2024-01-01","2025-01-01","Amul")
+    -> ,(2,"dairy_milk",20,"2024-11-01","2026-07-10","Amul")
+    -> ,(3,"parle",20,"2024-12-11","2025-06-18","parle");
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from product;
++-----+------------+-------+------------+------------+---------+
+| pid | name       | price | mdate      | exdate     | company |
++-----+------------+-------+------------+------------+---------+
+|   1 | Milk       |    40 | 2024-01-01 | 2025-01-01 | Amul    |
+|   2 | dairy_milk |    20 | 2024-11-01 | 2026-07-10 | Amul    |
+|   3 | parle      |    20 | 2024-12-11 | 2025-06-18 | parle   |
++-----+------------+-------+------------+------------+---------+
+3 rows in set (0.00 sec)
+
+
+mysql> create trigger expirydate after update on product
+    ->  for each row
+    -> begin
+    -> if new.exdate<>old.exdate then
+    -> insert into saleoffer values("0",new.pid,new.name,new.price,new.mdate,new.exdate,20);
+    -> end if;
+    -> end
+    -> /
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> update product set exdate="2026-01-02" where pid=1;
+    -> /
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from saleoffer;
+    -> /
++---------+------+------+-------+------------+------------+----------+
+| offerid | pid  | name | price | mdate      | exdate     | discount |
++---------+------+------+-------+------------+------------+----------+
+|       1 |    1 | Milk |    40 | 2024-01-01 | 2026-01-02 |       20 |
++---------+------+------+-------+------------+------------+----------+
+1 row in set (0.00 sec)
+-------------------------+--------------------+---------------------+--------------+------------+-------------------+-------------

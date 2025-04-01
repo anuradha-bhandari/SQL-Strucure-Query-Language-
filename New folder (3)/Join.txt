@@ -1,0 +1,1012 @@
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| clg                |
+| company            |
+| db                 |
+| hospital           |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sakila             |
+| students           |
+| sys                |
+| world              |
++--------------------+
+11 rows in set (0.04 sec)
+
+mysql> use company;
+Database changed
+mysql> show tables;
++-------------------+
+| Tables_in_company |
++-------------------+
+| book              |
+| course            |
+| csjoin            |
+| customer          |
+| employee          |
+| placement         |
+| property          |
+| student           |
++-------------------+
+8 rows in set (0.03 sec)
+
+mysql> select* from course;
++------+--------+-------+
+| c_id | c_name | fees  |
++------+--------+-------+
+|    1 | JAVA   | 26000 |
+|    2 | PHP    | 26000 |
+|    3 | .NET   | 26000 |
++------+--------+-------+
+3 rows in set (0.01 sec)
+
+mysql> select* from student;
++-----+--------+------------------+----------+---------+
+| Sid | name   | Email            | contact  | Address |
++-----+--------+------------------+----------+---------+
+|   1 | Ram    | ram@gmail.com    |  1236789 | Pune    |
+|   2 | Shyam  | shyam@gmail.com  |  9936789 | Nashik  |
+|   3 | Dinesh | dinesh@gmail.com | 90036789 | Mumbai  |
++-----+--------+------------------+----------+---------+
+3 rows in set (0.00 sec)
+
+mysql> select course.c_name,count(student.Sid) from course inner join csjoin on course.c_id=csjoin.c_id inner join student on student.Sid=csjoin.Sid group by course.c_name;
++--------+--------------------+
+| c_name | count(student.Sid) |
++--------+--------------------+
+| JAVA   |                  2 |
+| PHP    |                  2 |
++--------+--------------------+
+2 rows in set (0.01 sec)
+
+mysql> select* from csjoin;
++------+------+------+
+| C_id | Sid  | Pid  |
++------+------+------+
+|    1 |    1 |    1 |
+|    2 |    1 |    2 |
+|    1 |    2 |    1 |
+|    2 |    2 |    2 |
++------+------+------+
+4 rows in set (0.00 sec)
+
+mysql> select course.c_name,count(student.Sid) from course inner join csjoin on course.c_id=csjoin.C_id inner join stude
+nt on student.Sid=csjoin.Sid group by course.c_name;
++--------+--------------------+
+| c_name | count(student.Sid) |
++--------+--------------------+
+| JAVA   |                  2 |
+| PHP    |                  2 |
++--------+--------------------+
+2 rows in set (0.01 sec)
+
+mysql> select course.c_name,count(student.Sid) from course left join csjoinon course.c_id=csjoin.C_id left join student on student.Sid=csjoin.Sid group by course.c_name;
++--------+--------------------+
+| c_name | count(student.Sid) |
++--------+--------------------+
+| .NET   |                  0 |
+| JAVA   |                  2 |
+| PHP    |                  2 |
++--------+--------------------+
+3 rows in set (0.00 sec)
+
+
+mysql> select c.c_name as "Course Name",count(s.Sid) as "Student Count" from
+ student s inner join csjoin cs on cs.Sid=s.Sid inner join course c on cs.C_
+id=c.c_id group by c.c_name having count(s.Sid)>1;
++-------------+---------------+
+| Course Name | Student Count |
++-------------+---------------+
+| JAVA        |             2 |
+| PHP         |             2 |
++-------------+---------------+
+2 rows        |             2 |
+              |             2 |
+
+mysql> select c.c_name,count(s.Sid) from course c left join csjoin cs on cs.c_id=c.c_id left join student s on cs.Sid=s.Sid group by c.c_name having count( s.Sid)=0;
++--------+--------------+
+| c_name | count(s.Sid) |
++--------+--------------+
+| .NET   |            0 |
++--------+--------------+
+1 row in set (0.01 sec)
+
+mysql> select * from placement;
++-----+---------+---------+------------+
+| Pid | company | Package | Pdate      |
++-----+---------+---------+------------+
+|   1 | TCS     |  360000 | 01/01/2020 |
+|   2 | Infosys |  360000 | 01/02/2020 |
++-----+---------+---------+------------+
+2 rows in set (0.04 sec)
+
+mysql> select* from student;
++-----+--------+------------------+----------+---------+
+| Sid | name   | Email            | contact  | Address |
++-----+--------+------------------+----------+---------+
+|   1 | Ram    | ram@gmail.com    |  1236789 | Pune    |
+|   2 | Shyam  | shyam@gmail.com  |  9936789 | Nashik  |
+|   3 | Dinesh | dinesh@gmail.com | 90036789 | Mumbai  |
++-----+--------+------------------+----------+---------+
+3 rows in set (0.00 sec)
+
+mysql> select s.name, count(p.package) from student s inner join placement p
+ on s.sid=p.pid group by s.name having count(p.package)>1;
+Empty set (0.00 sec)
+
+mysql>
+mysql> select s.name, max(p.package) from student s inner join placement p o
+n s.sid=p.pid group by s.name;
++-------+----------------+
+| name  | max(p.package) |
++-------+----------------+
+| Ram   |         360000 |
+| Shyam |         360000 |
++-------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> select s.name, max(p.package) from student s inner join placement p o
+n s.sid=p.pid group by s.name;
++-------+----------------+
+| name  | max(p.package) |
++-------+----------------+
+| Ram   |         360000 |
+| Shyam |         360000 |
++-------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> select max(package) from placement;
++--------------+
+| max(package) |
++--------------+
+|       360000 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> select s.name as "Student name",p.package as "High package" from student s inner join placement p on s.sid=p.pid where p.package=(select max(pack
+age) from placement);
++--------------+--------------+
+| Student name | High package |
++--------------+--------------+
+| Ram          |       360000 |
+| Shyam        |       360000 |
++--------------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> select s.name as "Student name",p.package as "High package" from student s inner join placement p on s.sid=p.pid where p.package=(select max(package) from placement);
++--------------+--------------+
+| Student name | High package |
++--------------+--------------+
+| Ram          |       360000 |
+| Shyam        |       360000 |
++--------------+--------------+
+2 rows in set (0.00 sec)
+       select s.name as "Student name",p.package as "High package" from student s inner join placement p on s.sid=p.pid where p.package;
++--------------+--------------+
+| Student name | High package |
++--------------+--------------+
+| Ram          |       360000 |
+| Shyam        |       360000 |
++--------------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> update placement set package=500000 where pid=1;
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select s.name as "Student name",p.package as "High package" from student s inner join placement p on s.sid=p.pid where p.package;
++--------------+--------------+
+| Student name | High package |
++--------------+--------------+
+| Ram          |       500000 |
+| Shyam        |       360000 |
++--------------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> select s.name as "Student name",p.package as "High package" from student s inner join placement p on s.sid=p.pid where p.package = (select max(package) from placement);
++--------------+--------------+
+| Student name | High package |
++--------------+--------------+
+| Ram          |       500000 |
++--------------+--------------+
+1 row in set (0.00 sec)
+
+mysql> select s.name as "Student name" ,p.package as "3rd highest package" from student s inner join placement p on s.sid=p.pid where package=(select count(package) from placement order by package desc);
+Empty set (0.01 sec)
+
+mysql> select s.name as "Student name" ,p.package as "3rd highest package" from student s inner join placement p on s.sid=p.pid where package=(select count(package) from placement order by count(package) desc);
+Empty set (0.00 sec)
+
+mysql> select distinct package from placement order by package;
++---------+
+| package |
++---------+
+|  360000 |
+|  500000 |
++---------+
+2 rows in set (0.00 sec)
+
+mysql> select distinct package from placement order by package limit 0,1;
++---------+
+| package |
++---------+
+|  360000 |
++---------+
+1 row in set (0.00 sec)
+
+mysql> select distinct package from placement order by package desc limit 0,
+2;
++---------+
+| package |
++---------+
+|  500000 |
+|  360000 |
++---------+
+2 rows in set (0.00 sec)
+
+mysql> select distinct package from placement order by package desc limit 2,
+0;
+Empty set (0.00 sec)
+
+mysql> select distinct package from placement order by package desc limit 2,1;
+Empty set (0.00 sec)
+
+mysql> select distinct package from placement order by package desc limit 1,
+1;
++---------+
+| package |
++---------+
+|  360000 |
++---------+
+1 row in set (0.00 sec)
+
+mysql> select s.name as"student name",p.package as"package" from student s inner join placement p on s.sid=p.pid where p.package=( select distinct package from placement order by package desc limit 1,1);
++--------------+---------+
+| student name | package |
++--------------+---------+
+| Shyam        |  360000 |
++--------------+---------+
+1 row in set (0.01 sec)
+
+mysql> select distinct min(package) from placement;
++--------------+
+| min(package) |
++--------------+
+|       360000 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> select s.name as "Student name" ,p.package as "Min package" from student s inner join placement p on s.sid=p.pid where p.package=( select distinct min(package) from placement);
++--------------+-------------+
+| Student name | Min package |
++--------------+-------------+
+| Shyam        |      360000 |
++--------------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select package from placement where package>300000;
++---------+
+| package |
++---------+
+|  500000 |
+|  360000 |
++---------+
+2 rows in set (0.00 sec)
+
+mysql> select s.name as "Student name", p.package as "Package" from students inner join placement p on s.sid=p.pid where p.package>300000;
++--------------+---------+
+| Student name | Package |
++--------------+---------+
+| Ram          |  500000 |
+| Shyam        |  360000 |
++--------------+---------+
+2 rows in set (0.00 sec)
+
+mysql> select package from placement order by package desc;
++---------+
+| package |
++---------+
+|  500000 |
+|  360000 |
++---------+
+2 rows in set (0.00 sec)
+
+
+mysql> select s.name as "Student name", p.package as "Package" from students inner join placement p on s.sid=p.pid order by p.package desc;
++--------------+---------+
+| Student name | Package |
++--------------+---------+
+| Ram          |  500000 |
+| Shyam        |  360000 |
++--------------+---------+
+2 rows in set (0.00 sec)
+
+
+mysql> select p.company as"Company name",count(s.sid) as "Student count" from placement p inner join csjoin cs on cs.pid=p.pid inner join student s on s.sid=cs.sid group by p.company;
++--------------+---------------+
+| Company name | Student count |
++--------------+---------------+
+| TCS          |             2 |
+| Infosys      |             2 |
++--------------+---------------+
+2 rows in set (0.01 sec)
+
+
+mysql> select c.c_name ,count(s.sid) as "Placed student count" from course c inner join csjoin cs on cs.c_id=c.c_id inner join student s on cs.sid=s.sid group by c.c_name;
++--------+----------------------+
+| c_name | Placed student count |
++--------+----------------------+
+| JAVA   |                    2 |
+| PHP    |                    2 |
++--------+----------------------+
+2 rows in set (0.00 sec)
+
+mysql> select c.c_name ,count(s.sid) as "Placed student count" from course c left join csjoin cs on cs.c_id=c.c_id left join student s on cs.sid=s.sid g
+roup by c.c_name;
++--------+----------------------+
+| c_name | Placed student count |
++--------+----------------------+
+| .NET   |                    0 |
+| JAVA   |                    2 |
+| PHP    |                    2 |
++--------+----------------------+
+3 rows in set (0.00 sec)
+
+
+mysql> select c.c_name as "Student list course",p.company as "Placement" from course c inner join csjoin cs on c.c_id=cs.c_id inner join placement p on
+p.pid=cs.pid;
++---------------------+-----------+
+| Student list course | Placement |
++---------------------+-----------+
+| JAVA                | TCS       |
+| JAVA                | TCS       |
+| PHP                 | Infosys   |
+| PHP                 | Infosys   |
++---------------------+-----------+
+4 rows in set (0.00 sec)
+
+mysql> select s.name, c.c_name as "Student list course",p.company as "Placem
+ent" from course c inner join csjoin cs on c.c_id=cs.c_id inner join placeme
+nt p on p.pid=cs.pid inner join student s on cs.sid=s.sid;
++-------+---------------------+-----------+
+| name  | Student list course | Placement |
++-------+---------------------+-----------+
+| Ram   | JAVA                | TCS       |
+| Shyam | JAVA                | TCS       |
+| Ram   | PHP                 | Infosys   |
+| Shyam | PHP                 | Infosys   |
++-------+---------------------+-----------+
+4 rows in set (0.00 sec)
+
+mysql> select c_id, count(pid) from csjoin group by c_id;
++------+------------+
+| c_id | count(pid) |
++------+------------+
+|    1 |          2 |
+|    2 |          2 |
++------+------------+
+2 rows in set (0.00 sec)
+
+mysql> insert into csjoin values(1,1,1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select c_id, count(pid) from csjoin group by c_id;
++------+------------+
+| c_id | count(pid) |
++------+------------+
+|    1 |          3 |
+|    2 |          2 |
++------+------------+
+2 rows in set (0.00 sec)
+
+
+mysql> select c.c_name as "Course name", count(p.pid) as"highest placement"from course c inner join csjoin cs on cs.c_id=c.c_id inner join placement pon cs.pid=p.pid group by c.c_name order by count(p.pid) desc limit 0,1;
++-------------+-------------------+
+| Course name | highest placement |
++-------------+-------------------+
+| JAVA        |                 3 |
++-------------+-------------------+
+1 row in set (0.00 sec)
+
+mysql> alter table placement add year year not null;
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+mysql> create table salesman(sid int primary key,name varchar(200),city varchar(200), commission int);
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> desc salesman;
++------------+--------------+------+-----+---------+-------+
+| Field      | Type         | Null | Key | Default | Extra |
++------------+--------------+------+-----+---------+-------+
+| sid        | int          | NO   | PRI | NULL    |       |
+| name       | varchar(200) | YES  |     | NULL    |       |
+| city       | varchar(200) | YES  |     | NULL    |       |
+| commission | int          | YES  |     | NULL    |       |
++------------+--------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> insert into salesman values(1,"Ramesh","pune", 20);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into salesman values(2,"shyam","mumbai", 15);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into salesman values(3,"Ganesh","nashik", 25);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into salesman values(4,"Ram","mumbai", 20);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into salesman values(5,"mukesh","pune", 10);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into salesman values(6,"neha","satara", 28);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> create table custmer(cid int primary key,name varchar(200),city varchar(200), grade int , sid int,foriegn key(sid) references salesman(sid));
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'key(sid) references salesman(sid))' at line 1
+mysql> create table custmer(cid int primary key,name varchar(200),city varchar(200), grade int , sid int,foreign key(sid) references salesman(sid));
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> insert into custmer values(1,"Madhuri","Mumbai",200,1);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> insert into custmer values(2,"Radha","Mumbai",100,1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into custmer values(3,"Sneha","Pune",300,3);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into custmer values(4,"Praji","Nashik",400,4);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into custmer values(5,"Sakshi","Satara",100,3);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into custmer values(6,"Sejal","Pune",200,6);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into custmer values(7,"Nikita","Satara",300,5);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from customer;
++----+---------+-------------------+------------+--------+--------+----------+
+| id | name    | email             | contact    | salary | city   | discount |
++----+---------+-------------------+------------+--------+--------+----------+
+|  1 | anu     | anu@gamail.com    | 9890830868 | 20000  | pune   |    20000 |
+|  2 | sakshi  | sakshi@gamail.com | 9890830865 | 30000  | pune   |     1000 |
+|  3 | nilofar | nilu@gamail.com   | 7790830865 | 40000  | nashik |    20000 |
+|  4 | senha   | sneha@gamail.com  | 7709830865 | 50000  | nashik |    30000 |
+|  5 | sejal   | sejal@gamail.com  | 999830865  | 90000  | mumbai |     4000 |
+|  6 | radha   | radha@gamail.com  | 9990930865 | 100000 | mumbai |    50000 |
+|  7 | praji   | praji@gamail.com  | 9990939865 | 10000  | pune   |     5000 |
++----+---------+-------------------+------------+--------+--------+----------+
+7 rows in set (0.01 sec)
+
+mysql> select * from custmer;
++-----+---------+--------+-------+------+
+| cid | name    | city   | grade | sid  |
++-----+---------+--------+-------+------+
+|   1 | Madhuri | Mumbai |   200 |    1 |
+|   2 | Radha   | Mumbai |   100 |    1 |
+|   3 | Sneha   | Pune   |   300 |    3 |
+|   4 | Praji   | Nashik |   400 |    4 |
+|   5 | Sakshi  | Satara |   100 |    3 |
+|   6 | Sejal   | Pune   |   200 |    6 |
+|   7 | Nikita  | Satara |   300 |    5 |
++-----+---------+--------+-------+------+
+7 rows in set (0.00 sec)
+
+mysql> create table orders(ord_no int primary key,pur_amt float,ord_date date,cid int, foreign key(cid)references custmer(cid),sid int, foreign key(sid) references salesman(sid));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> insert into orders values(1,150,"2020-10-05",5,2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into orders values(2,300,"2020-09-14",1,3);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into orders values(3,70,"2020-07-01",2,5);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into orders values(4,250,"2020-04-09",3,2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into orders values(5,400,"2020-02-12",4,6);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into orders values(6,500,"2020-08-11",5,3);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from orders;
++--------+---------+------------+------+------+
+| ord_no | pur_amt | ord_date   | cid  | sid  |
++--------+---------+------------+------+------+
+|      1 |     150 | 2020-10-05 |    5 |    2 |
+|      2 |     300 | 2020-09-14 |    1 |    3 |
+|      3 |      70 | 2020-07-01 |    2 |    5 |
+|      4 |     250 | 2020-04-09 |    3 |    2 |
+|      5 |     400 | 2020-02-12 |    4 |    6 |
+|      6 |     500 | 2020-08-11 |    5 |    3 |
++--------+---------+------------+------+------+
+6 rows in set (0.01 sec)
+
+mysql> select* from salesman;
++-----+--------+--------+------------+
+| sid | name   | city   | commission |
++-----+--------+--------+------------+
+|   1 | Ramesh | pune   |         20 |
+|   2 | shyam  | mumbai |         15 |
+|   3 | Ganesh | nashik |         25 |
+|   4 | Ram    | mumbai |         20 |
+|   5 | mukesh | pune   |         10 |
+|   6 | neha   | satara |         28 |
++-----+--------+--------+------------+
+6 rows in set (0.00 sec)
+
+mysql> select s.name as"Salesman",c.name as "Customer name",c.city as "City"
+ from salesman s inner join custmer on s.sid=c.sid;
+ERROR 1054 (42S22): Unknown column 'c.name' in 'field list'
+mysql> select s.name as"Salesman",c.name as "Customer name",c.city as "City" from salesman s inner join custmer c on s.sid=c.sid ;
++----------+---------------+--------+
+| Salesman | Customer name | City   |
++----------+---------------+--------+
+| Ramesh   | Madhuri       | Mumbai |
+| Ramesh   | Radha         | Mumbai |
+| Ganesh   | Sneha         | Pune   |
+| Ram      | Praji         | Nashik |
+| Ganesh   | Sakshi        | Satara |
+| neha     | Sejal         | Pune   |
+| mukesh   | Nikita        | Satara |
++----------+---------------+--------+
+7 rows in set (0.00 sec)
+
+mysql> select s.name as"Salesman",c.name as "Customer name",c.city as "City" from salesman s inner join custmer c on s.sid=c.sid where city=pune;
+ERROR 1052 (23000): Column 'city' in where clause is ambiguous
+mysql> select s.name as"Salesman",c.name as "Customer name",c.city as "City" from salesman s inner join custmer c on s.sid=c.sid where s.city=c.city;
+Empty set (0.00 sec)
+       select s.name as"Salesman",c.name as "Customer name",c.city as "City" from salesman s inner join custmer c on s.sid=c.sid where s.city=c.city;
+Empty set (0.01 sec)
+
+mysql> select s.city as "Salesman",c.city as "Customer" from salesman s inner join custmer c on c.city=s.city;
++----------+----------+
+| Salesman | Customer |
++----------+----------+
+| mumbai   | Mumbai   |
+| mumbai   | Mumbai   |
+| mumbai   | Mumbai   |
+| mumbai   | Mumbai   |
+| pune     | Pune     |
+| pune     | Pune     |
+| nashik   | Nashik   |
+| satara   | Satara   |
+| pune     | Pune     |
+| pune     | Pune     |
+| satara   | Satara   |
++----------+----------+
+11 rows in set (0.00 sec)
+
+mysql> select s.city as "city" ,s.name as "salesman",c.name as "customer" from salesman s inner join custmer c on c.city=s.city;
++--------+----------+----------+
+| city   | salesman | customer |
++--------+----------+----------+
+| mumbai | Ram      | Madhuri  |
+| mumbai | shyam    | Madhuri  |
+| mumbai | Ram      | Radha    |
+| mumbai | shyam    | Radha    |
+| pune   | mukesh   | Sneha    |
+| pune   | Ramesh   | Sneha    |
+| nashik | Ganesh   | Praji    |
+| satara | neha     | Sakshi   |
+| pune   | mukesh   | Sejal    |
+| pune   | Ramesh   | Sejal    |
+| satara | neha     | Nikita   |
++--------+----------+----------+
+11 rows in set (0.00 sec)
+
+mysql> select distinct s.city as "city" ,s.name as "salesman",c.name as "customer" from salesman s inner join custmer c on c.city=s.city;
++--------+----------+----------+
+| city   | salesman | customer |
++--------+----------+----------+
+| mumbai | Ram      | Madhuri  |
+| mumbai | shyam    | Madhuri  |
+| mumbai | Ram      | Radha    |
+| mumbai | shyam    | Radha    |
+| pune   | mukesh   | Sneha    |
+| pune   | Ramesh   | Sneha    |
+| nashik | Ganesh   | Praji    |
+| satara | neha     | Sakshi   |
+| pune   | mukesh   | Sejal    |
+| pune   | Ramesh   | Sejal    |
+| satara | neha     | Nikita   |
++--------+----------+----------+
+11 rows in set (0.00 sec)
+
+mysql> select s.city as "city" ,s.name as "salesman",c.name as "customer" from salesman s inner join custmer c on c.sid=s.sid where c.city=s.city;
+Empty set (0.00 sec)
+
+mysql> select * from orders;
++--------+---------+------------+------+------+
+| ord_no | pur_amt | ord_date   | cid  | sid  |
++--------+---------+------------+------+------+
+|      1 |     150 | 2020-10-05 |    5 |    2 |
+|      2 |     300 | 2020-09-14 |    1 |    3 |
+|      3 |      70 | 2020-07-01 |    2 |    5 |
+|      4 |     250 | 2020-04-09 |    3 |    2 |
+|      5 |     400 | 2020-02-12 |    4 |    6 |
+|      6 |     500 | 2020-08-11 |    5 |    3 |
++--------+---------+------------+------+------+
+6 rows in set (0.00 sec)
+
+mysql> select o.ord_no as "ord_no",o.purch_amt as "purch amount",c.name as "Customer name",c.city as "City" from orders o inner join custmer c on o.cid=c.ci
+d;
+ERROR 1054 (42S22): Unknown column 'o.purch_amt' in 'field list'
+mysql> select o.ord_no as "ord_no",o.pur_amt as "purch amount",c.name as "Customer name",c.city as "City" from orders o inner join custmer c on o.cid=c.cid;
+
++--------+--------------+---------------+--------+
+| ord_no | purch amount | Customer name | City   |
++--------+--------------+---------------+--------+
+|      1 |          150 | Sakshi        | Satara |
+|      2 |          300 | Madhuri       | Mumbai |
+|      3 |           70 | Radha         | Mumbai |
+|      4 |          250 | Sneha         | Pune   |
+|      5 |          400 | Praji         | Nashik |
+|      6 |          500 | Sakshi        | Satara |
++--------+--------------+---------------+--------+
+6 rows in set (0.00 sec)
+
+mysql> select o.ord_no as "ord_no",o.pur_amt as "purch amount",c.name as "Customer name",c.city as "City" from orders o inner join custmer c on o.cid=c.cid  where o.pur_amt between 300 and 500;
++--------+--------------+---------------+--------+
+| ord_no | purch amount | Customer name | City   |
++--------+--------------+---------------+--------+
+|      2 |          300 | Madhuri       | Mumbai |
+|      5 |          400 | Praji         | Nashik |
+|      6 |          500 | Sakshi        | Satara |
++--------+--------------+---------------+--------+
+3 rows in set (0.00 sec)
+
+mysql> select c.name as "Customer name" ,c.city as"city",s.name as "Salesman" ,s.commission as "commission" from custmer c inner join salesman s on c.sid=s.sid;
++---------------+--------+----------+------------+
+| Customer name | city   | Salesman | commission |
++---------------+--------+----------+------------+
+| Madhuri       | Mumbai | Ramesh   |         20 |
+| Radha         | Mumbai | Ramesh   |         20 |
+| Sneha         | Pune   | Ganesh   |         25 |
+| Praji         | Nashik | Ram      |         20 |
+| Sakshi        | Satara | Ganesh   |         25 |
+| Sejal         | Pune   | neha     |         28 |
+| Nikita        | Satara | mukesh   |         10 |
++---------------+--------+----------+------------+
+7 rows in set (0.00 sec)
+
+mysql> select c.name as "Customer name",c.city as "Customer city",s.name as "Salesman",s.city as "Salesman city",s.commission as "Commission" from custmer c inner join salesman s on s.sid=c.sid where s.commission>20;
++---------------+---------------+----------+---------------+------------+
+| Customer name | Customer city | Salesman | Salesman city | Commission |
++---------------+---------------+----------+---------------+------------+
+| Sneha         | Pune          | Ganesh   | nashik        |         25 |
+| Sakshi        | Satara        | Ganesh   | nashik        |         25 |
+| Sejal         | Pune          | neha     | satara        |         28 |
++---------------+---------------+----------+---------------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select o.ord_no as "order number", o.ord_date as "order date",o.pur_amt as "purchase amount",c.name as "Customer name",c.grade as "Grade",s.commission as "Commission",s.name as "Salesman" from custmer c inner join orders o on o.cid=c.cid inner join salesman s on s.sid=o.sid;
++--------------+------------+-----------------+---------------+-------+------------+----------+
+| order number | order date | purchase amount | Customer name | Grade | Commission | Salesman |
++--------------+------------+-----------------+---------------+-------+------------+----------+
+|            2 | 2020-09-14 |             300 | Madhuri       |   200 |         25 | Ganesh   |
+|            3 | 2020-07-01 |              70 | Radha         |   100 |         10 | mukesh   |
+|            4 | 2020-04-09 |             250 | Sneha         |   300 |         15 | shyam    |
+|            5 | 2020-02-12 |             400 | Praji         |   400 |         28 | neha     |
+|            1 | 2020-10-05 |             150 | Sakshi        |   100 |         15 | shyam    |
+|            6 | 2020-08-11 |             500 | Sakshi        |   100 |         25 | Ganesh   |
++--------------+------------+-----------------+---------------+-------+------------+----------+
+6 rows in set (0.00 sec)
+
+mysql>
+mysql>  select c.name as "name",c.city as "city",c.grade as "grade",s.name as "Salesman",s.city as "Salesman city" from custmer c inner join salesman s on c.sid=s.sid order by c.cid ;
++---------+--------+-------+----------+---------------+
+| name    | city   | grade | Salesman | Salesman city |
++---------+--------+-------+----------+---------------+
+| Madhuri | Mumbai |   200 | Ramesh   | pune          |
+| Radha   | Mumbai |   100 | Ramesh   | pune          |
+| Sneha   | Pune   |   300 | Ganesh   | nashik        |
+| Praji   | Nashik |   400 | Ram      | mumbai        |
+| Sakshi  | Satara |   100 | Ganesh   | nashik        |
+| Sejal   | Pune   |   200 | neha     | satara        |
+| Nikita  | Satara |   300 | mukesh   | pune          |
++---------+--------+-------+----------+---------------+
+7 rows in set (0.00 sec)
+
+mysql>
+mysql>  select s.city as "city" ,s.name as "salesman",c.name as "customer" from salesman s inner join custmer c on c.sid=s.sid where c.city=s.city;
+Empty set (0.00 sec)
+
+mysql>  select s.city as "city" ,s.name as "salesman",c.name as "customer" from salesman s inner join custmer c on c.sid=s.cid where c.city=s.city;
+ERROR 1054 (42S22): Unknown column 's.cid' in 'on clause'
+mysql>  select s.city as "city" ,s.name as "salesman",c.name as "customer" from salesman s inner join custmer c on c.cid=s.sid where c.city=s.city;
++--------+----------+----------+
+| city   | salesman | customer |
++--------+----------+----------+
+| mumbai | shyam    | Radha    |
++--------+----------+----------+
+1 row in set (0.01 sec)
+
+mysql>  select s.city as "sales_city",s.name as "salesman",c.name as "customer",c.city as "cust_city" from salesman s inner join custmer c on c.sid=s.sid wh
+ere c.city=s.city;
+Empty set (0.00 sec)
+
+mysql>  select s.city as "sales_city",s.name as "salesman",c.name as "customer",c.city as "cust_city" from salesman s inner join custmer c on c.cid=s.sid wh
+ere c.city=s.city;
++------------+----------+----------+-----------+
+| sales_city | salesman | customer | cust_city |
++------------+----------+----------+-----------+
+| mumbai     | shyam    | Radha    | Mumbai    |
++------------+----------+----------+-----------+
+1 row in set (0.01 sec)
+
+mysql>  select s.city as "sales_city",s.name as "salesman",c.name as "customer",c.city as "cust_city" from salesman s inner join custmer c on c.sid=s.sid wh
+ere c.city=s.city;
+Empty set (0.00 sec)
+
+mysql> update custmer set city='pune' where id=2;
+ERROR 1054 (42S22): Unknown column 'id' in 'where clause'
+mysql> update custmer set city='pune' where cid=2;
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql>  select s.city as "sales_city",s.name as "salesman",c.name as "customer",c.city as "cust_city" from salesman s inner join custmer c on c.sid=s.sid where c.city=s.city;
++------------+----------+----------+-----------+
+| sales_city | salesman | customer | cust_city |
++------------+----------+----------+-----------+
+| pune       | Ramesh   | Radha    | pune      |
++------------+----------+----------+-----------+
+1 row in set (0.00 sec)
+
+mysql>
+
+
+
+-----------------------------------------+-----------------------------------------+------------------------------------------------------+----------------------------------------------
+
+
+
+
+ select * from orders;
++--------+---------+------------+------+------+
+| ord_no | pur_amt | ord_date   | cid  | sid  |
++--------+---------+------------+------+------+
+|      1 |     150 | 2020-10-05 |    5 |    2 |       
+|      2 |     300 | 2020-09-14 |    1 |    3 |
+|      3 |      70 | 2020-07-01 |    2 |    5 |
+|      4 |     250 | 2020-04-09 |    3 |    2 |
+|      5 |     400 | 2020-02-12 |    4 |    6 |
+|      6 |     500 | 2020-08-11 |    5 |    3 |
++--------+---------+------------+------+------+
+
+
+
+
+
+ select * from custmer;
++-----+---------+--------+-------+------+
+| cid | name    | city   | grade | sid  |
++-----+---------+--------+-------+------+
+|   1 | Madhuri | Mumbai |   200 |    1 |
+|   2 | Radha   | pune   |   100 |    1 |
+|   3 | Sneha   | Pune   |   300 |    3 |
+|   4 | Praji   | Nashik |   400 |    4 |
+|   5 | Sakshi  | Satara |   100 |    3 |
+|   6 | Sejal   | Pune   |   200 |    6 |
+|   7 | Nikita  | Satara |   300 |    5 |
++-----+---------+--------+-------+------+
+7 rows in set (0.01 sec)
+
+
+> select * from placement;
++-----+---------+---------+------------+------+
+| Pid | company | Package | Pdate      | year |
++-----+---------+---------+------------+------+
+|   1 | TCS     |  500000 | 01/01/2020 | 0000 |
+|   2 | Infosys |  360000 | 01/02/2020 | 0000 |
++-----+---------+---------+------------+------+
+2 rows in set (0.01 sec)
+
+
+
+ select * from salesman;
++-----+--------+--------+------------+
+| sid | name   | city   | commission |
++-----+--------+--------+------------+
+|   1 | Ramesh | pune   |         20 |
+|   2 | shyam  | mumbai |         15 |
+|   3 | Ganesh | nashik |         25 |
+|   4 | Ram    | mumbai |         20 |
+|   5 | mukesh | pune   |         10 |
+|   6 | neha   | satara |         28 |
++-----+--------+--------+------------+
+6 rows in set (0.01 sec)
+
+
+
+
+
+
+
+Query10
+
+ Write a SQL statement to make a report with customer name, city, order number, order date, and order amount in ascending order according to the order date to determine whether any of the existing customers have placed an order or not.
+
+
+ select c.name as "Customer name",c.name as "Custmer name" ,c.city as
+"city" ,o.ord_no as "order no",o.ord_date as "order date",o.pur_amt as "order amount" from custmer c left join orders o on c.cid=o.cid;
+
++---------------+--------------+--------+----------+------------+--------------+
+| Customer name | Custmer name | city   | order no | order date | order amount |
++---------------+--------------+--------+----------+------------+--------------+
+| Madhuri       | Madhuri      | Mumbai |        2 | 2020-09-14 |          300 |
+| Radha         | Radha        | pune   |        3 | 2020-07-01 |           70 |
+| Sneha         | Sneha        | Pune   |        4 | 2020-04-09 |          250 |
+| Praji         | Praji        | Nashik |        5 | 2020-02-12 |          400 |
+| Sakshi        | Sakshi       | Satara |        1 | 2020-10-05 |          150 |
+| Sakshi        | Sakshi       | Satara |        6 | 2020-08-11 |          500 |
+| Sejal         | Sejal        | Pune   |     NULL | NULL       |         NULL |
+| Nikita        | Nikita       | Satara |     NULL | NULL       |         NULL |
++---------------+--------------+--------+----------+------------+--------------+
+8 rows in set (0.00 sec)
+
+-----------------------------------------------------------+-------------------------------------
+
+Query11
+SQL statement to generate a report with customer name, city, order number, order date, order amount, salesperson name, and commission to determine if any of the existing customers have not placed orders or if they have placed orders through their salesman or by themselves.
+
+
+
+
+mysql> select c.name as "Customer name",c.city as "city",o.ord_no as "order number",o.ord_date as "order date",o.pur_amt as "order amount" ,s.name as "salesperson name" ,s.commission as "commission" from custmer c left join orders o on c.cid=o.cid left join salesman s on s.sid=o.sid;
++---------------+--------+--------------+------------+--------------+------------------+------------+
+| Customer name | city   | order number | order date | order amount | salesperson name | commission |
++---------------+--------+--------------+------------+--------------+------------------+------------+
+| Madhuri       | Mumbai |            2 | 2020-09-14 |          300 | Ganesh           |         25 |
+| Radha         | pune   |            3 | 2020-07-01 |           70 | mukesh           |         10 |
+| Sneha         | Pune   |            4 | 2020-04-09 |          250 | shyam            |         15 |
+| Praji         | Nashik |            5 | 2020-02-12 |          400 | neha
+           |         28 |
+| Sakshi        | Satara |            1 | 2020-10-05 |          150 | shyam            |         15 |
+| Sakshi        | Satara |            6 | 2020-08-11 |          500 | Ganesh           |         25 |
+| Sejal         | Pune   |         NULL | NULL       |         NULL | NULL             |       NULL |
+| Nikita        | Satara |         NULL | NULL       |         NULL | NULL             |       NULL |
++---------------+--------+--------------+------------+--------------+------------------+------------+
+8 rows in set (0.00 sec)
+-----------+----------------+----------------------------+---------------------------------------+------------------
+
+
+
+Query12
+Write a SQL statement to generate a list in ascending order of salespersons who work either for one or more customers or have not yet joined any of the customers.
+
+
+ select s.name as "Salesperson",c.name as "customer name" from salesman s left join custmer c on c.sid=s.sid order by s.name;
++-------------+---------------+
+| Salesperson | customer name |
++-------------+---------------+
+| Ganesh      | Sneha         |
+| Ganesh      | Sakshi        |
+| mukesh      | Nikita        |
+| neha        | Sejal         |
+| Ram         | Praji         |
+| Ramesh      | Madhuri       |
+| Ramesh      | Radha         |
+| shyam       | NULL          |
++-------------+---------------+
+
+---------------+--------------------------+--------------------------+-----------------------+--------------------------------
+
+
+
+
+Query13
+From the following tables write a SQL query to list all salespersons along with customer name, city, grade, order number, date, and amount. Condition for selecting list of salesmen :
+1. Salesmen who works for one or more customer or,
+ 2. Salesmen who not yet join under any customer, Condition for selecting list of customer :
+3. placed one or more orders, or
+ 4. no order placed to their salesman.
+
+
+
+select s.name as "salesman name",c.city as "city",c.grade as "grade",
+c.name as "customer" ,o.ord_no as "order number" ,o.ord_date as "order date",o.pur_amt as "order amount" from custmer c right join orders o on c.cid=o.cid right join salesman s on s.sid=o.sid;
++---------------+--------+-------+----------+--------------+------------+--------------+
+| salesman name | city   | grade | customer | order number | order date | order amount |
++---------------+--------+-------+----------+--------------+------------+--------------+
+| Ramesh        | NULL   |  NULL | NULL     |         NULL | NULL       |         NULL |
+| shyam         | Satara |   100 | Sakshi   |            1 | 2020-10-05 |          150 |
+| shyam         | Pune   |   300 | Sneha    |            4 | 2020-04-09 |          250 |
+| Ganesh        | Mumbai |   200 | Madhuri  |            2 | 2020-09-14 |          300 |
+| Ganesh        | Satara |   100 | Sakshi   |            6 | 2020-08-11 |          500 |
+| Ram           | NULL   |  NULL | NULL     |         NULL | NULL       |         NULL |
+| mukesh        | pune   |   100 | Radha    |            3 | 2020-07-01 |           70 |
+| neha          | Nashik |   400 | Praji    |            5 | 2020-02-12 |          400 |
++---------------+--------+-------+----------+--------------+------------+--------------+
+8 rows in set (0.00 sec)
+---------------+-----------------+-----------------------------------+-------------------------------+------------------------------------+----------------------------------------------
+
+
+Query14
+ Write a SQL statement to make a list for the salesmen who either work for one or more customers or yet to join any of the customer. The customer may have placed, either one or more orders on or above order amount 2000 and must have a grade, or he may not have placed any order to the associated supplier.
+
+select s.name as "salesman",c.name as "custmer",c.grade as "grade",o.ord_no as "order number",pur_amt as "order amount" from salesman s right joi
+n orders o on o.sid=s.sid right join custmer c on c.cid=o.cid;
++----------+---------+-------+--------------+--------------+
+| salesman | custmer | grade | order number | order amount |
++----------+---------+-------+--------------+--------------+
+| Ganesh   | Madhuri |   200 |            2 |          300 |
+| mukesh   | Radha   |   100 |            3 |           70 |
+| shyam    | Sneha   |   300 |            4 |          250 |
+| neha     | Praji   |   400 |            5 |          400 |
+| shyam    | Sakshi  |   100 |            1 |          150 |
+| Ganesh   | Sakshi  |   100 |            6 |          500 |
+| NULL     | Sejal   |   200 |         NULL |         NULL |
+| NULL     | Nikita  |   300 |         NULL |         NULL |
++----------+---------+-------+--------------+--------------+
+8 rows in set (0.00 sec)
+------------+--------------------+-------------------------+-----+----------+---------+-----
+
+-----------+--------------------------+--------------------------------+----------------+---------------+------------------------+-------------------------------------+-------------
+
+
+Query15
+For those customers from the existing list who put one or more orders, or which orders have been placed by the customer who is not on the list, create a report containing the customer name, city, order number, order date, and purchase amount
+
+ select c.name as "cust name",c.city as "customer city",o.ord_no as "order number",o.ord_date as "order date",o.pur_amt as "purchase amount" from custmer c left join orders o on c.cid=o.cid ;
++-----------+---------------+--------------+------------+-----------------+
+| cust name | customer city | order number | order date | purchase amount |
++-----------+---------------+--------------+------------+-----------------+
+| Madhuri   | Mumbai        |            2 | 2020-09-14 |             300 |
+| Radha     | pune          |            3 | 2020-07-01 |              70 |
+| Sneha     | Pune          |            4 | 2020-04-09 |             250 |
+| Praji     | Nashik        |            5 | 2020-02-12 |             400 |
+| Sakshi    | Satara        |            1 | 2020-10-05 |             150 |
+| Sakshi    | Satara        |            6 | 2020-08-11 |             500 |
+| Sejal     | Pune          |         NULL | NULL       |            NULL |
+| Nikita    | Satara        |         NULL | NULL       |            NULL |
++-----------+---------------+--------------+------------+-----------------+
+8 rows in set (0.01 sec)
+
+----------------------+-----------------------------------------+--------------------------+-------------------------------------+-----------------------------------------+----------
+
+Query17
+ Write a SQL query to combine each row of the salesman table with each row of the customer table
+
+ select * from
+    -> salesman s cross join course ;
++-----+--------+--------+------------+------+--------+-------+
+| sid | name   | city   | commission | c_id | c_name | fees  |
++-----+--------+--------+------------+------+--------+-------+
+|   1 | Ramesh | pune   |         20 |    3 | .NET   | 26000 |
+|   1 | Ramesh | pune   |         20 |    2 | PHP    | 26000 |
+|   1 | Ramesh | pune   |         20 |    1 | JAVA   | 26000 |
+|   2 | shyam  | mumbai |         15 |    3 | .NET   | 26000 |
+|   2 | shyam  | mumbai |         15 |    2 | PHP    | 26000 |
+|   2 | shyam  | mumbai |         15 |    1 | JAVA   | 26000 |
+|   3 | Ganesh | nashik |         25 |    3 | .NET   | 26000 |
+|   3 | Ganesh | nashik |         25 |    2 | PHP    | 26000 |
+|   3 | Ganesh | nashik |         25 |    1 | JAVA   | 26000 |
+|   4 | Ram    | mumbai |         20 |    3 | .NET   | 26000 |
+|   4 | Ram    | mumbai |         20 |    2 | PHP    | 26000 |
+|   4 | Ram    | mumbai |         20 |    1 | JAVA   | 26000 |
+|   5 | mukesh | pune   |         10 |    3 | .NET   | 26000 |
+|   5 | mukesh | pune   |         10 |    2 | PHP    | 26000 |
+|   5 | mukesh | pune   |         10 |    1 | JAVA   | 26000 |
+|   6 | neha   | satara |         28 |    3 | .NET   | 26000 |
+|   6 | neha   | satara |         28 |    2 | PHP    | 26000 |
+|   6 | neha   | satara |         28 |    1 | JAVA   | 26000 |
++-----+--------+--------+------------+------+--------+-------+
+18 rows in set (0.01 sec)

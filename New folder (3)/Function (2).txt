@@ -1,0 +1,80 @@
+mysql> delimiter $$
+mysql> create function getpower1(base int, indx int) returns int deterministic
+    ->       begin
+    ->      declare p int; -- local variables
+    ->      declare i int; -- local variables
+    ->      set p=1;
+    ->      set i=1;
+    ->
+    ->       p_loop:Loop
+    ->
+    ->       set p=p*base;
+    ->
+    ->       if i=indx then
+    ->       leave p_loop;
+    ->       end if;
+    ->       set i=i+1;
+    ->       end loop;
+    ->       return p;
+    ->       end $$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> select getpower1(5,3);
++----------------+
+| getpower1(5,3) |
++----------------+
+|            125 |
++----------------+
+1 row in set (0.01 sec)
+
+mmysql>  create function getprime(no int) returns int deterministic
+    -> begin
+    -> declare i int default 2;
+    -> declare c int default 0;
+    -> n_loop:Loop
+    -> if i<=no/2 then
+    -> if no%i=0 then
+    -> set c=1;
+    -> end if;
+    -> end if;
+    -> leave n_loop;
+    -> set i=i+1;
+    -> end loop;
+    -> return c;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select getprime(3);
+    -> //
++-------------+
+| getprime(3) |
++-------------+
+|           0 |
++-------------+
+1 row in set (0.01 sec)
+
+mysql> select getprime(4);
+    -> //
++-------------+
+| getprime(4) |
++-------------+
+|           1 |
++-------------+
+1 row in set (0.00 sec)
+
+
+
+ create function getprime1(no int) returns varchar(200) deterministic
+    ->      begin
+    ->      declare i int default 2;
+    ->      declare flag varchar(200) default "true";
+    ->      if i<=no/2 then
+    ->      if no%i=0 then
+    ->      set flag="false";
+    ->      end if;
+    ->      set i=i+1;
+    ->      end if;
+    ->      return flag;
+    ->      end //
+Query OK, 0 rows affected (0.02 sec)
